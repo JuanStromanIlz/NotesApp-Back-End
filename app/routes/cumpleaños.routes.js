@@ -3,7 +3,9 @@ module.exports = app => {
     
 
     app.route("/")
-    .get(cumpleaño.findAll)
+    .get((req, res) => {
+        res.render("login")
+    })
     .post(cumpleaño.create)
     .delete(cumpleaño.deleteAll);
 
