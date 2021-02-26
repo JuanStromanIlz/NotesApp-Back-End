@@ -1,6 +1,5 @@
 const db = require("../models/mongoose");
-const Cumpleaño = db.cumpleaños;
-
+const Cumpleaño = db.cumpleaños.cumpleañoModel;
 //CRUD de la collection cumpleaños
 
 exports.create = (req, res) => {

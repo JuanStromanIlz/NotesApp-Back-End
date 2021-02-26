@@ -3,13 +3,10 @@ const express = require("express");
 const ejs = require("ejs");
 const app = express();
 //const axios = require("axios").default;
-const session = require("express-session");
 const passport = require("passport");
-const passportLocalMongoose = require("passport-local-mongoose");
-const FacebookStrategy = require('passport-facebook').Strategy;
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const routes = require('./app/routes/loginFacebook.routes');
+
 
 
 app.set('views', __dirname + '/app/views')
@@ -19,29 +16,13 @@ var corsOptions = {
   origin: "http://localhost:8081"
 };
 
-// app.use(cors(corsOptions));
+app.use(cors(corsOptions));
 
-// app.use(bodyParser.json());
-// //app.use(express.static("public"));
+app.use(bodyParser.json());
+//app.use(express.static("public"));
 
-// // parse requests of content-type - application/x-www-form-urlencoded
-// app.use(bodyParser.urlencoded({ extended: true }))
-
-app.use(passport.initialize());
-app.use(passport.session());
-
-passport.serializeUser(function (user, cb) {
-  cb(null, user);
-});
-
-passport.deserializeUser(function (obj, cb) {
-  cb(null, obj);
-});
-
-
-
-
-
+// parse requests of content-type - application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: true }))
 
 const db = require("./app/models/mongoose.js");
 db.mongoose
@@ -57,9 +38,20 @@ db.mongoose
     console.log("Cannot connect to the database!", err);
     process.exit();
   });
- 
-//require("./app/routes/cumpleaños.routes")(app);
-app.use('/', routes);
+  ///user routes test
+//   const userController = require ("./app/controllers/user.controller");  
+//   app.get('/auth/facebook',
+//   passport.authenticate('facebook'));
+
+// app.get('/auth/facebook/callback',
+//   passport.authenticate('facebook', { failureRedirect: '/login' }),
+//   function(req, res) {
+//     // Successful authentication, redirect home.
+//     res.redirect('/');
+//   });
+  ///user routes test
+const userRouter = require("./app/routes/user.routes");
+app.use(userRouter);
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, ()=>{

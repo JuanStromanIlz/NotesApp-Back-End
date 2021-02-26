@@ -1,11 +1,9 @@
 module.exports = app => {
-    const cumpleaño = require("../controllers/cumpleaños.controller");
+    const cumpleaño = require("../controllers/cumpleaño.controller");
     
 
     app.route("/")
-    .get((req, res) => {
-        res.render("login")
-    })
+    .get(cumpleaño.findAll)
     .post(cumpleaño.create)
     .delete(cumpleaño.deleteAll);
 

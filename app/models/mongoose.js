@@ -6,7 +6,7 @@ mongoose.Promise = global.Promise;
 const db = {};
 db.mongoose = mongoose;
 db.url = dbConfig.url;
-db.cumpleaños = require("./cumpleaños.model.js")(mongoose);
-// db.users = require("./users.model.js")(mongoose);
+db.cumpleaños = require("./cumpleaño.model.js");
+db.users = require("./user.model.js");
 
 module.exports = db;
