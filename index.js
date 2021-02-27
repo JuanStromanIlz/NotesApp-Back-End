@@ -37,6 +37,7 @@ db.mongoose
   //llamar a las rutas
 require("./app/routes/auth.routes")(app);
 require("./app/routes/event.routes")(app);
+require("./app/routes/user.routes")(app);
 
 
 

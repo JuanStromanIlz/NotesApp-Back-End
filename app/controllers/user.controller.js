@@ -23,6 +23,7 @@ module.exports.createUser = (userData) => {
 module.exports.createBooking = (req, res) => {
     const userId = req.params.user_id;
     const booking = req.body;
+    console.log(booking);
     User.findOne({_id: userId})
     .then(data => {
         const newBooking = new Event({
@@ -32,7 +33,8 @@ module.exports.createBooking = (req, res) => {
             sonNames: booking.sonNames,
             amount: booking.amout,
             obs: booking.obs
-        });
+        })
+        //abrir booking y pushear este nuevo registro ahi
     })
     .catch(err => {
         res.status(500).send({
