@@ -1,15 +1,17 @@
 const mongoose = require("mongoose");
 
-const cumpleaños = require("./cumpleaño.model");
-const cumpleañosSchema = cumpleaños.cumpleañosSchema;
+const events = require("./event.model");
+const eventsSchema = events.eventsSchema;
 
 
 const userSchema = new mongoose.Schema(
     {
         fName: String,
         lName: String,
+        userPhoto: Object,
         email: String,
-        bookings: [cumpleañosSchema]
+        bookings: [eventsSchema],
+        facebookId: String
 
     }
 );

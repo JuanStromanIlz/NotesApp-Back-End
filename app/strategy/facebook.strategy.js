@@ -1,6 +1,7 @@
-require('dotenv').config()
+require("dotenv").config()
 const passport = require("passport");
-const facebookStrategy = require('passport-facebook').Strategy;
+const facebookStrategy = require("passport-facebook").Strategy;
+const userController = require("../controllers/user.controller");
 
 module.exports = () => {
     passport.use(
@@ -9,18 +10,18 @@ module.exports = () => {
             clientID: process.env.FACEBOOK_CLIENT_ID,
             clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
             callbackURL: process.env.FACEBOOK_CALLBACK_URL,
-            profileFields: ["email", "name"]
+            profileFields: ["id", "first_name", "last_name", "photos", "email"]
           },
           function(accessToken, refreshToken, profile, done) {
-            // const { email, first_name, last_name } = profile._json;
-            // const userData = {
-            //   email,
-            //   firstName: first_name,
-            //   lastName: last_name
-            // };
-            // new userModel(userData).save();
-            // done(null, profile);
-            console.log("Auth done");
+            const { id, first_name, last_name, photos, email } = profile._json;
+            const newUser = {
+              fName: first_name,
+              lName: last_name,
+              userPhoto: photos,
+              email: email,
+              facebookId: id
+            }
+            userController.createUser(newUser);
             done(null, profile);
           }
         )

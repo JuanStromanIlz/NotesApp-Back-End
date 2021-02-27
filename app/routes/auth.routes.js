@@ -14,9 +14,9 @@ module.exports = (app) => {
       res.send("Failed attempt");
     });
   
-    app.get("/", (req, res) => {
-      res.send("Success");
-    });
+    // app.get("/", (req, res) => {
+    //   res.send("Success");
+    // });
 }
 
 

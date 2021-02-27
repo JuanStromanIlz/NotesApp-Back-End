@@ -1,6 +1,6 @@
 const db = require("../models/mongoose");
-const Cumpleaño = db.cumpleaños.cumpleañoModel;
-//CRUD de la collection cumpleaños
+const Event = db.events.eventModel;
+//CRUD de la collection events
 
 exports.create = (req, res) => {
     // Validate request
@@ -11,8 +11,8 @@ exports.create = (req, res) => {
         return;
     }
 
-    // Create a Cumpleaño
-    const cumpleaño = new Cumpleaño({
+    // Create a Event
+    const event = new Event({
         date: req.body.date,
         schedule: req.body.schedule,
         buyer: "objetExample",
@@ -21,28 +21,28 @@ exports.create = (req, res) => {
         obs: req.body.obs
     });
 
-    // Save Cumpleaño in the database
-    cumpleaño
-        .save(cumpleaño)
+    // Save Event in the database
+    event
+        .save(event)
         .then(data => {
             res.send(data);
         })
         .catch(err => {
             res.status(500).send({
-                message: err.message || "Some error occurred while creating cumpleaño."
+                message: err.message || "Some error occurred while creating event."
             });
         });
 };
 
 exports.findAll = (req, res) => {
 
-    Cumpleaño.find()
+    Event.find()
         .then(data => {
             res.send(data);
         })
         .catch(err => {
             res.status(500).send({
-                message: err.message || "Some error occurred while retrieving cumpleaño."
+                message: err.message || "Some error occurred while retrieving event."
             });
         });
 };
@@ -54,7 +54,7 @@ exports.findBySearch = (req, res) => {
         $diacriticSensitive : false,
         $caseSensitive:false
     }
-    Cumpleaño.find({ $text : { $search: searchedWord , ...searchOptions } })
+    Event.find({ $text : { $search: searchedWord , ...searchOptions } })
     .then(data => {
         if (data.length === 0) {
             res.send("Ningun resultado coincide");
@@ -72,7 +72,7 @@ exports.findBySearch = (req, res) => {
 
 exports.updateOne = (req, res) => {
     let body = req.body;
-    Cumpleaño.updateOne({
+    Event.updateOne({
             _id: body.id
         }, {
             $set: req.body
@@ -82,14 +82,14 @@ exports.updateOne = (req, res) => {
         })
         .catch(err => {
             res.status(500).send({
-                message: err.message || "Some error occurred while updating cumpleaño."
+                message: err.message || "Some error occurred while updating event."
             });
         });
 }
 
 exports.deleteOne = (req, res) => {
     let body = req.body;
-    Cumpleaño.deleteOne({
+    Event.deleteOne({
         _id: body.id
     })
     .then(() => {
@@ -103,7 +103,7 @@ exports.deleteOne = (req, res) => {
 }
 
 exports.deleteAll = (req, res) => {
-    Cumpleaño.deleteMany({})
+    Event.deleteMany({})
     .then(() => {
         res.send("Delete all docs");
     })

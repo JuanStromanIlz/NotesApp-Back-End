@@ -35,8 +35,8 @@ db.mongoose
   });
 
   //llamar a las rutas
-//require("./app/routes/auth.routes")(app);
-//require("./app/routes/cumpleaño.routes")(app);
+require("./app/routes/auth.routes")(app);
+require("./app/routes/event.routes")(app);
 
 
 

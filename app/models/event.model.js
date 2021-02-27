@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-module.exports.cumpleañosSchema = new mongoose.Schema(
+module.exports.eventsSchema = new mongoose.Schema(
   {
     date: String,
     schedule: String,
@@ -18,4 +18,4 @@ module.exports.cumpleañosSchema = new mongoose.Schema(
   sonNames: "text"
 });
 
-module.exports.cumpleañoModel =  mongoose.model("cumpleaños", this.cumpleañosSchema);
+module.exports.eventModel =  mongoose.model("events", this.eventsSchema);
