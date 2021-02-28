@@ -4,7 +4,7 @@ module.exports.eventsSchema = new mongoose.Schema(
   {
     date: String,
     schedule: String,
-    // buyer: user._id,
+    buyer: String,
     sonNames: String,
     amount: Number,
     obs: String
