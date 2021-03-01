@@ -1,8 +1,5 @@
 const mongoose = require("mongoose");
-
 const events = require("./event.model");
-const eventsSchema = events.eventsSchema;
-
 
 const userSchema = new mongoose.Schema(
     {
@@ -10,8 +7,8 @@ const userSchema = new mongoose.Schema(
         lName: String,
         userPhoto: Object,
         email: String,
-        bookings: [eventsSchema],
-        facebookId: String
+        facebookId: String,
+        role: String
 
     }
 );

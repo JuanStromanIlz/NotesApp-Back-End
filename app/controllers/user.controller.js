@@ -12,7 +12,8 @@ module.exports.createUser = (userData) => {
                 userPhoto: userData.userPhoto,
                 email: userData.email,
                 bookings: [],
-                facebookId: userData.facebookId 
+                facebookId: userData.facebookId,
+                role: "client"
             }).save();     
        } else {
            console.log("Ya registrado")
@@ -26,18 +27,16 @@ module.exports.createUser = (userData) => {
     
 }
 
-module.exports.createBooking = (req, res) => {
-    const userId = req.params.user_id;
-    const booking = req.body;
+module.exports.createBooking = (clientId, dataBooking) => {
     const newBooking = new Event({
-        date: booking.date,
-        schedule: booking.schedule,
-        buyer: userId,
-        sonNames: booking.sonNames,
-        amount: booking.amout,
-        obs: booking.obs
+        date: dataBooking.date,
+        schedule: dataBooking.schedule,
+        buyer: clientId,
+        sonNames: dataBooking.sonNames,
+        amount: dataBooking.amout,
+        obs: dataBooking.obs
     }).save()
-    .then(data => {
+    .then(() => {
         
         res.send("Listo")
     })
@@ -48,14 +47,12 @@ module.exports.createBooking = (req, res) => {
     });
 }
 
-module.exports.updateBooking = (req, res) => {
-    const userId = req.params.user_id;
-    const body = req.body;
+module.exports.updateBooking = (clientId, updateBooking) => {
     Event.updateOne({
-            _id: body.id,
-            buyer: userId
+            _id: updateBooking.id,
+            buyer: clientId
         }, {
-            $set: req.body
+            $set: updateBooking
         })
         .then(() => {
             res.send("Update doc");
@@ -67,10 +64,8 @@ module.exports.updateBooking = (req, res) => {
         });
 }
 
-module.exports.deleteBooking = (req, res) => {
-    const userId = req.params.user_id;
-    const bookingId = req.body.booking_id; 
-    Event.deleteOne({_id: bookingId, buyer: userId})
+module.exports.deleteBooking = (clientId, bookingId) => {
+    Event.deleteOne({_id: bookingId, buyer: clientId})
     .then(data => {
         res.send("eliminado");
     })
@@ -81,9 +76,8 @@ module.exports.deleteBooking = (req, res) => {
     })
 }
 
-module.exports.deleteUserBookings = (req, res) => {
-    const userId = req.params.user_id
-    Event.deleteMany({buyer: userId})
+module.exports.deleteUserBookings = (clientId) => {
+    Event.deleteMany({buyer: clientId})
     .then(() => {
         res.send("Delete all docs");
     })
@@ -94,9 +88,8 @@ module.exports.deleteUserBookings = (req, res) => {
     })
 }
 
-module.exports.findAll = (req, res) => {
-    const userId = req.params.user_id;
-    Event.find({buyer: userId})
+module.exports.findAll = (clientId) => {
+    Event.find({buyer: clientId})
         .then(data => {
             res.send(data);
         })
@@ -106,3 +99,15 @@ module.exports.findAll = (req, res) => {
             });
         });
 };
+
+module.exports.findOne = (clientId, bookingId) => {
+    Event.findOne({_id: bookingId, buyer: clientId})
+    .then(data => {
+        res.send(data)
+    })
+    .catch(err => {
+        res.status(500).send({
+            message: err.message || "Some error occurred while retrieving event."
+        });
+    });
+}

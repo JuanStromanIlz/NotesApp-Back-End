@@ -1,18 +1,30 @@
+require("dotenv").config()
+const session = require('express-session');
 const passport = require("passport");
+const db = require("../models/mongoose");
+const User = db.users;
 
 module.exports = function (app) {
+  app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    savaUninitialized: false
+  }));
 
   app.use(passport.initialize());
   app.use(passport.session());
   
   passport.serializeUser(function (user, done) {
-      done(null, user);
+    //this id correspond to User.facebookId
+      done(null, user.id);
   });
   
-  passport.deserializeUser(function (user, done) {
-      done(null, user);
+  passport.deserializeUser(function(id, done) {
+    User.find({facebookId: id}, function(err, user) {
+      done(err, user);
+    });
   });
-  
+
   const facebook = require('../strategy/facebook.strategy.js')();
   console.log(facebook);
 };

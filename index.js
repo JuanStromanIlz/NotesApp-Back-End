@@ -2,6 +2,7 @@ require('dotenv').config()
 const express = require("express");
 const ejs = require("ejs");
 //const axios = require("axios").default;
+const session = require('express-session');
 const passport = require("passport");
 const bodyParser = require("body-parser");
 const cors = require("cors");
@@ -38,6 +39,7 @@ db.mongoose
 require("./app/routes/auth.routes")(app);
 require("./app/routes/event.routes")(app);
 require("./app/routes/user.routes")(app);
+require("./app/routes/page.routes")(app);
 
 
 
