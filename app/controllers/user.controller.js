@@ -1,113 +1,109 @@
 const db = require("../models/mongoose");
 const User = db.users;
-const Event = db.events.eventModel;
+const Note = db.notes.noteModel;
+require('dotenv').config()
 
-module.exports.createUser = (userData) => {
-    User.find({email: userData.email})
-    .then(data => {
-       if (data.length === 0) {
-            const newUser = new User({
-                fName: userData.fName,
-                lName: userData.lName,
-                userPhoto: userData.userPhoto,
-                email: userData.email,
-                bookings: [],
-                facebookId: userData.facebookId,
-                role: "client"
-            }).save();     
-       } else {
-           console.log("Ya registrado")
-       }
-    })
-    .catch(err => {
-        res.status(500).send({
-            message: err.message || "Some error occurred while creating user."
-        })
-    });
-    
-}
-
-module.exports.createBooking = (clientId, dataBooking) => {
-    const newBooking = new Event({
-        date: dataBooking.date,
-        schedule: dataBooking.schedule,
-        buyer: clientId,
-        sonNames: dataBooking.sonNames,
-        amount: dataBooking.amout,
-        obs: dataBooking.obs
-    }).save()
-    .then(() => {
-        
-        res.send("Listo")
-    })
-    .catch(err => {
-        res.status(500).send({
-            message: err.message || "Some error occurred while creating event."
-        })
+//crea un nuevo usuario
+module.exports.createUser = (req) => {
+    User.find({email: req.email}, (err, data) => {
+        if (err) return err
+        data.length === 0 &&
+        new User({
+            fName: req.fName,
+            lName: req.lName,
+            userPhoto: req.userPhoto,
+            email: req.email,
+            facebookId: req.facebookId
+        }).save(err => {
+            if(err) return err;
+        });
     });
 }
-
-module.exports.updateBooking = (clientId, updateBooking) => {
-    Event.updateOne({
-            _id: updateBooking.id,
-            buyer: clientId
-        }, {
-            $set: updateBooking
-        })
-        .then(() => {
-            res.send("Update doc");
-        })
-        .catch(err => {
-            res.status(500).send({
-                message: err.message || "Some error occurred while updating event."
-            });
-        });
+//crea un nuevo post
+module.exports.createNote = (req, res) => {
+    let dataBooking = req.body;
+    let clientId = process.env.USER_ID;
+    const newBooking = new Note({
+        writer: userId,
+        title: dataBooking.title,
+        sub: dataBooking.sub,
+        category: dataBooking.category,
+        content: dataBooking.content
+    }).save((err => {
+        if(err) return err;
+    }));
 }
-
-module.exports.deleteBooking = (clientId, bookingId) => {
-    Event.deleteOne({_id: bookingId, buyer: clientId})
-    .then(data => {
-        res.send("eliminado");
-    })
-    .catch(err => {
-        res.status(500).send({
-            message: err.message || "Some error occurred while deleting event."
-        })
-    })
-}
-
-module.exports.deleteUserBookings = (clientId) => {
-    Event.deleteMany({buyer: clientId})
-    .then(() => {
-        res.send("Delete all docs");
-    })
-    .catch(err => {
-        res.status(500).send({
-            message: err.message || "Some error ocurred during the delete"
-        })
-    })
-}
-
-module.exports.findAll = (clientId) => {
-    Event.find({buyer: clientId})
-        .then(data => {
-            res.send(data);
-        })
-        .catch(err => {
-            res.status(500).send({
-                message: err.message || "Some error occurred while retrieving event."
-            });
-        });
-};
-
-module.exports.findOne = (clientId, bookingId) => {
-    Event.findOne({_id: bookingId, buyer: clientId})
-    .then(data => {
+//trae todos los posts
+module.exports.allUserNotes = (req, res) => {
+    let userId = process.env.USER_ID;
+    Note.find({buyer: userId}, (err, data) => {
+        if(err) res.send(err);
         res.send(data)
-    })
-    .catch(err => {
-        res.status(500).send({
-            message: err.message || "Some error occurred while retrieving event."
-        });
     });
 }
+//borra el post seleccionado
+module.exports.deleteNote = (req, res) => {
+    let clientId = process.env.USER_ID;
+    let noteId = req.params.note_id;
+    Note.deleteOne({_id: noteId, buyer: clientId}, err => {
+        if(err) res.send(err);
+    });
+}
+//trae un post especifico
+module.exports.findNote = (req, res) => {
+    let clientId = process.env.USER_ID;
+    let noteId = req.params.note_id;
+    Note.findOne({_id: noteId, buyer: clientId}, (err, data) => {
+        if(err) res.send(err);
+        else res.send(data);
+    });
+}
+//guarda la edicion de un post especifico
+module.exports.updateNote = (req, res) => {
+    let clientId = process.env.USER_ID;
+    let updateNote = req.body;
+    Note.updateOne({_id: updateNote.id, buyer: clientId}, {$set: updateNote}, err => {
+        if(err) res.send(err);
+    });
+}
+//borra todos los posts
+module.exports.deleteAllNotes = (req, res) => {
+    let clientId = process.env.USER_ID;
+    Note.deleteMany({buyer: clientId}, err => {
+        if(err) res.send(err);
+    });
+}
+//busca personalizada de posts
+module.exports.findBySearch = (req, res) => {
+    let searchedWord = req.params.note;
+    let query = { $or: [
+        { "title" : { $regex: new RegExp(searchedWord, "i")}},
+        { "sub" : { $regex: new RegExp(searchedWord, "i")}},
+        { "content" : { $regex: new RegExp(searchedWord, "i")}},
+        { "category" : { $regex: new RegExp(searchedWord, "i")}}
+    ]};
+    Note.find(query, (err, data) => {
+        if(err) res.send(err)
+        res.send(data);
+    });
+}
+//cierra la session del usuario
+module.exports.logOut = (req, res) => {
+    req.logout();
+    req.session.destroy((err) => {
+        res.clearCookie('connect.sid');
+        res.redirect(`${process.env.FRONTEND_HOST}`);
+    });
+}
+
+
+
+
+
+
+
+
+
+
+
+

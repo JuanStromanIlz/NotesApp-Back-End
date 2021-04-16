@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const events = require("./event.model");
 
 const userSchema = new mongoose.Schema(
     {
@@ -7,9 +6,7 @@ const userSchema = new mongoose.Schema(
         lName: String,
         userPhoto: Object,
         email: String,
-        facebookId: String,
-        role: String
-
+        facebookId: String
     }
 );
 

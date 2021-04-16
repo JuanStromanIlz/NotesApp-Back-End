@@ -7,8 +7,8 @@ const User = db.users;
 module.exports = function (app) {
   app.use(session({
     secret: process.env.SESSION_SECRET,
-    resave: false,
-    savaUninitialized: false
+    resave: true,
+    saveUninitialized: true
   }));
 
   app.use(passport.initialize());
@@ -26,5 +26,4 @@ module.exports = function (app) {
   });
 
   const facebook = require('../strategy/facebook.strategy.js')();
-  console.log(facebook);
 };
