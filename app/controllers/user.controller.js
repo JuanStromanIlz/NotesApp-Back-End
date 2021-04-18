@@ -24,19 +24,20 @@ module.exports.createNote = (req, res) => {
     let dataBooking = req.body;
     let clientId = process.env.USER_ID;
     const newBooking = new Note({
-        writer: userId,
+        writer: clientId,
         title: dataBooking.title,
         sub: dataBooking.sub,
         category: dataBooking.category,
         content: dataBooking.content
     }).save((err => {
         if(err) return err;
+        res.send("nota creada")
     }));
 }
 //trae todos los posts
 module.exports.allUserNotes = (req, res) => {
     let userId = process.env.USER_ID;
-    Note.find({buyer: userId}, (err, data) => {
+    Note.find({writer: userId}, (err, data) => {
         if(err) res.send(err);
         res.send(data)
     });
@@ -53,7 +54,7 @@ module.exports.deleteNote = (req, res) => {
 module.exports.findNote = (req, res) => {
     let clientId = process.env.USER_ID;
     let noteId = req.params.note_id;
-    Note.findOne({_id: noteId, buyer: clientId}, (err, data) => {
+    Note.findOne({_id: noteId, writer: clientId}, (err, data) => {
         if(err) res.send(err);
         else res.send(data);
     });
@@ -62,14 +63,15 @@ module.exports.findNote = (req, res) => {
 module.exports.updateNote = (req, res) => {
     let clientId = process.env.USER_ID;
     let updateNote = req.body;
-    Note.updateOne({_id: updateNote.id, buyer: clientId}, {$set: updateNote}, err => {
+    Note.updateOne({_id: updateNote._id, writer: clientId}, {$set: updateNote}, err => {
         if(err) res.send(err);
+        else res.end();
     });
 }
 //borra todos los posts
 module.exports.deleteAllNotes = (req, res) => {
     let clientId = process.env.USER_ID;
-    Note.deleteMany({buyer: clientId}, err => {
+    Note.deleteMany({writer: clientId}, err => {
         if(err) res.send(err);
     });
 }

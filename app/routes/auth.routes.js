@@ -6,7 +6,7 @@ module.exports = app => {
     app.get("/facebook", passport.authenticate("facebook"));
 
     app.get("/facebook/callback", passport.authenticate("facebook", {
-      successRedirect: `${process.env.FRONTEND_HOST}/bookingMenu`,
+      successRedirect: `${process.env.FRONTEND_HOST}/my-notes`,
       failureRedirect: `${process.env.FRONTEND_HOST}`
     }));
   
