@@ -22,9 +22,9 @@ module.exports.createUser = (req) => {
 //crea un nuevo post
 module.exports.createNote = (req, res) => {
     let dataBooking = req.body;
-    let clientId = process.env.USER_ID;
+    let userId = req.user[0].facebookId;
     const newBooking = new Note({
-        writer: clientId,
+        writer: userId,
         title: dataBooking.title,
         sub: dataBooking.sub,
         category: dataBooking.category,
@@ -36,42 +36,63 @@ module.exports.createNote = (req, res) => {
 }
 //trae todos los posts
 module.exports.allUserNotes = (req, res) => {
-    let userId = process.env.USER_ID;
+    let userId = req.user[0].facebookId;
     Note.find({writer: userId}, (err, data) => {
         if(err) res.send(err);
         res.send(data)
     });
 }
+//trae todas las categorias del usuario
+module.exports.allUserCategories = (req, res) => {
+    let userId = req.user[0].facebookId;
+    Note.find({writer: userId},{category: 1, _id: 0}, (err, data) => {
+        if(err) res.send(err);
+        let allCates = data.map(note => note.category);
+        let cleanCategories = [...new Set(allCates)];
+        res.send(cleanCategories);
+    });
+}
+//filtra por categorias 
+module.exports.filterCategories = (req, res) => {
+    let selectedFields = req.body;
+    let userId = req.user[0].facebookId;
+    let optionsObject = selectedFields.map(value => { return {category: value} });
+    Note.find({ writer: userId, $or : optionsObject }, (err, data) => {
+        if(err) res.send(err);
+        else res.send(data);
+    });
+}
 //borra el post seleccionado
 module.exports.deleteNote = (req, res) => {
-    let clientId = process.env.USER_ID;
+    let userId = req.user[0].facebookId;
     let noteId = req.params.note_id;
-    Note.deleteOne({_id: noteId, buyer: clientId}, err => {
+    Note.deleteOne({_id: noteId, writer: userId}, err => {
         if(err) res.send(err);
+        res.send({mensagge: "nota eliminada"})
     });
 }
 //trae un post especifico
 module.exports.findNote = (req, res) => {
-    let clientId = process.env.USER_ID;
+    let userId = req.user[0].facebookId;
     let noteId = req.params.note_id;
-    Note.findOne({_id: noteId, writer: clientId}, (err, data) => {
+    Note.findOne({_id: noteId, writer: userId}, (err, data) => {
         if(err) res.send(err);
         else res.send(data);
     });
 }
 //guarda la edicion de un post especifico
 module.exports.updateNote = (req, res) => {
-    let clientId = process.env.USER_ID;
+    let userId = req.user[0].facebookId;
     let updateNote = req.body;
-    Note.updateOne({_id: updateNote._id, writer: clientId}, {$set: updateNote}, err => {
+    Note.updateOne({_id: updateNote._id, writer: userId}, {$set: updateNote}, err => {
         if(err) res.send(err);
         else res.end();
     });
 }
 //borra todos los posts
 module.exports.deleteAllNotes = (req, res) => {
-    let clientId = process.env.USER_ID;
-    Note.deleteMany({writer: clientId}, err => {
+    let userId = req.user[0].facebookId;
+    Note.deleteMany({writer: userId}, err => {
         if(err) res.send(err);
     });
 }

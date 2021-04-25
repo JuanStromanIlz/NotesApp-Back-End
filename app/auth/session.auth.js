@@ -1,7 +1,7 @@
 module.exports = (req, res, next) => {
         if(req.isAuthenticated()) {
-            return next();
+            next()
         } else {
-            res.redirect(process.env.FRONTEND_HOST);
+            res.redirect(`${process.env.FRONTEND_HOST}`);
         }
     }

@@ -10,7 +10,9 @@ const corsOptions = {
 router.use(cors(corsOptions));
 router.options("*", cors(corsOptions));
 
-router.get("/allNotes", user.allUserNotes);
+router.get("/allNotes", isLoggedIn, user.allUserNotes);
+router.get("/allCategories", user.allUserCategories);
+router.get("/filterCategories", user.filterCategories);
 router.post("/createNote", user.createNote);
 router.get("/note/:note_id", user.findNote);
 router.get("/noteSearch/:note", user.findBySearch);
