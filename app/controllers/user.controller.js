@@ -54,7 +54,7 @@ module.exports.allUserCategories = (req, res) => {
 }
 //filtra por categorias 
 module.exports.filterCategories = (req, res) => {
-    let selectedFields = req.body;
+    let selectedFields = req.params.categories.split(',');
     let userId = req.user[0].facebookId;
     let optionsObject = selectedFields.map(value => { return {category: value} });
     Note.find({ writer: userId, $or : optionsObject }, (err, data) => {
