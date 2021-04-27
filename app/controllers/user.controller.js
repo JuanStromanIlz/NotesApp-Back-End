@@ -37,7 +37,7 @@ module.exports.createNote = (req, res) => {
 //trae todos los posts
 module.exports.allUserNotes = (req, res) => {
     let userId = req.user[0].facebookId;
-    Note.find({writer: userId}, (err, data) => {
+    Note.find({writer: userId}, null, {sort: { updatedAt : -1 }}, (err, data) => {
         if(err) res.send(err);
         res.send(data)
     });
@@ -57,7 +57,7 @@ module.exports.filterCategories = (req, res) => {
     let selectedFields = req.params.categories.split(',');
     let userId = req.user[0].facebookId;
     let optionsObject = selectedFields.map(value => { return {category: value} });
-    Note.find({ writer: userId, $or : optionsObject }, (err, data) => {
+    Note.find({ writer: userId, $or : optionsObject }, null, {sort: { updatedAt : -1 }}, (err, data) => {
         if(err) res.send(err);
         else res.send(data);
     });
