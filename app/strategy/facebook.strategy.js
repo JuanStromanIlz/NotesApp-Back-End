@@ -8,7 +8,7 @@ module.exports = () => {
           {
             clientID: process.env.FACEBOOK_CLIENT_ID,
             clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
-            callbackURL: process.env.FACEBOOK_CALLBACK_URL,
+            callbackURL: `/auth/facebook/callback`,
             profileFields: ['id', 'first_name', 'last_name', 'picture.type(large)', 'email']
           },
           function(accessToken, refreshToken, profile, done) {
