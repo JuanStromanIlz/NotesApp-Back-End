@@ -1,10 +1,9 @@
-const db = require("../models/mongoose");
+const db = require('../models/mongoose');
+const defaultNotes = require('../default.notes');
 const User = db.users;
 const Note = db.notes.noteModel;
-require('dotenv').config()
-
-//crea un nuevo usuario
-module.exports.createUser = (req) => {
+//Crea un nuevo usuario
+module.exports.createUser = (req, res) => {
     User.find({email: req.email}, (err, data) => {
         if (err) return err
         data.length === 0 &&
@@ -15,14 +14,48 @@ module.exports.createUser = (req) => {
             email: req.email,
             facebookId: req.facebookId
         }).save(err => {
-            if(err) return err;
+            if(!err) {
+                //Creacion de las notas por defecto
+                defaultNotes.notes.map(note => {
+                    new Note({
+                        writer: req.facebookId,
+                        title: note.title.replace('/USER_NAME/', req.fName),
+                        sub: note.sub,
+                        category: note.category,
+                        content: note.content
+                    }).save();
+                });
+            }
         });
     });
 }
-//crea un nuevo post
+//Devuelve el perfil del usuario
+module.exports.getUserInfo = (req, res) => {
+    let [ user ] = req.user;
+    let userId = user.facebookId;
+    User.findOne({facebookId: userId}, (err, data) => {
+        if (!err) {
+            Note.find({writer: userId}, (err, notes) => {
+                if (!err) {   
+                    let userNotes = notes.length;
+                    let userObj = {
+                        fName: data.fName,
+                        lName: data.lName,
+                        email: data.email,
+                        photo: data.userPhoto.data.url,
+                        notes: userNotes
+                    }
+                    res.send(userObj)
+                }
+            });
+        }
+    });
+}
+//Crea un nuevo post
 module.exports.createNote = (req, res) => {
     let dataBooking = req.body;
-    let userId = req.user[0].facebookId;
+    let [ user ] = req.user;
+    let userId = user.facebookId;
     const newBooking = new Note({
         writer: userId,
         title: dataBooking.title,
@@ -30,92 +63,91 @@ module.exports.createNote = (req, res) => {
         category: dataBooking.category,
         content: dataBooking.content
     }).save((err => {
-        if(err) return err;
-        res.send("nota creada")
+        if (err) res.send(err);
     }));
 }
-//trae todos los posts
+//Trae todos los posts
 module.exports.allUserNotes = (req, res) => {
-    let userId = req.user[0].facebookId;
+    let [ user ] = req.user;
+    let userId = user.facebookId;
     Note.find({writer: userId}, null, {sort: { updatedAt : -1 }}, (err, data) => {
-        if(err) res.send(err);
+        if (err) res.send(err);
         res.send(data)
     });
 }
-//trae todas las categorias del usuario
+//Trae todas las categorias del usuario
 module.exports.allUserCategories = (req, res) => {
-    let userId = req.user[0].facebookId;
+    let [ user ] = req.user;
+    let userId = user.facebookId;
     Note.find({writer: userId},{category: 1, _id: 0}, (err, data) => {
-        if(err) res.send(err);
-        let allCates = data.map(note => note.category);
-        let cleanCategories = [...new Set(allCates)];
-        res.send(cleanCategories);
+        if (!err) {
+            let allCates = data.map(note => note.category);
+            let cleanCategories = [...new Set(allCates)];
+            res.send(cleanCategories);
+        }
+        else {
+            res.send(err);
+        }
     });
 }
-//filtra por categorias 
-module.exports.filterCategories = (req, res) => {
-    let selectedFields = req.params.categories.split(',');
-    let userId = req.user[0].facebookId;
-    let optionsObject = selectedFields.map(value => { return {category: value} });
-    Note.find({ writer: userId, $or : optionsObject }, null, {sort: { updatedAt : -1 }}, (err, data) => {
-        if(err) res.send(err);
-        else res.send(data);
-    });
-}
-//borra el post seleccionado
+//Borra el post seleccionado
 module.exports.deleteNote = (req, res) => {
-    let userId = req.user[0].facebookId;
+    let [ user ] = req.user;
+    let userId = user.facebookId;
     let noteId = req.params.note_id;
     Note.deleteOne({_id: noteId, writer: userId}, err => {
-        if(err) res.send(err);
-        res.send({mensagge: "nota eliminada"})
+        if (!err) {
+            res.send({mensagge: 'nota eliminada'});
+        }
+        else {
+            res.send(err);
+        }
     });
 }
-//trae un post especifico
-module.exports.findNote = (req, res) => {
-    let userId = req.user[0].facebookId;
-    let noteId = req.params.note_id;
-    Note.findOne({_id: noteId, writer: userId}, (err, data) => {
-        if(err) res.send(err);
-        else res.send(data);
-    });
-}
-//guarda la edicion de un post especifico
+//Guarda la edicion de un post especifico
 module.exports.updateNote = (req, res) => {
-    let userId = req.user[0].facebookId;
+    let [ user ] = req.user;
+    let userId = user.facebookId;
     let updateNote = req.body;
     Note.updateOne({_id: updateNote._id, writer: userId}, {$set: updateNote}, err => {
-        if(err) res.send(err);
-        else res.end();
+        if (!err) {
+            res.send({mensagge: 'nota actualizada'});
+        }
+        else {
+            res.send(err);
+        }
     });
 }
-//borra todos los posts
-module.exports.deleteAllNotes = (req, res) => {
-    let userId = req.user[0].facebookId;
+//Borra toda la info del usuario
+module.exports.deleteUser = (req, res) => {
+    let [ user ] = req.user;
+    let userId = user.facebookId;
     Note.deleteMany({writer: userId}, err => {
-        if(err) res.send(err);
+        if (!err) {
+            User.deleteOne({facebookId: userId}, err => {
+                if (!err) {
+                    res.send({mensagge: 'usuario eliminado'});
+                }
+                else {
+                    res.send(err);
+                }
+            });
+        }
+        else {
+            res.send(err);
+        }
     });
 }
-//busca personalizada de posts
-module.exports.findBySearch = (req, res) => {
-    let searchedWord = req.params.note;
-    let query = { $or: [
-        { "title" : { $regex: new RegExp(searchedWord, "i")}},
-        { "sub" : { $regex: new RegExp(searchedWord, "i")}},
-        { "content" : { $regex: new RegExp(searchedWord, "i")}},
-        { "category" : { $regex: new RegExp(searchedWord, "i")}}
-    ]};
-    Note.find(query, (err, data) => {
-        if(err) res.send(err)
-        res.send(data);
-    });
-}
-//cierra la session del usuario
+//Cierra la session del usuario
 module.exports.logOut = (req, res) => {
     req.logout();
     req.session.destroy((err) => {
-        res.clearCookie('connect.sid');
-        res.redirect(`${process.env.FRONTEND_HOST}`);
+        if (!err) {
+            res.clearCookie('connect.sid');
+        }
+        else {
+            res.send(err);
+        }
     });
 }
 

@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 module.exports.notesSchema = new mongoose.Schema(
   { 
@@ -7,26 +7,27 @@ module.exports.notesSchema = new mongoose.Schema(
       type: String,
       required: true,
       minLength: 1,
-      maxLengh: 80
+      maxLengh: 60
     },
     sub: {
       type: String,
       minLength: 1,
-      maxLengh: 80
+      maxLengh: 60
     },
     content: {
       type: String,
       required: true,
       minLength: 1,
-      maxLengh: 200
+      maxLengh: 300
     },
     category: {
       type: String,
+      required: true,
       minLength: 1,
-      maxLengh: 20
+      maxLengh: 25
     }
   },
   { timestamps: true }
 );
 
-module.exports.noteModel =  mongoose.model("notes", this.notesSchema);
+module.exports.noteModel =  mongoose.model('notes', this.notesSchema);

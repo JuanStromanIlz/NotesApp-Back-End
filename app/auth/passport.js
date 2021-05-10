@@ -1,7 +1,6 @@
-require("dotenv").config()
 const session = require('express-session');
-const passport = require("passport");
-const db = require("../models/mongoose");
+const passport = require('passport');
+const db = require('../models/mongoose');
 const User = db.users;
 
 module.exports = function (app) {

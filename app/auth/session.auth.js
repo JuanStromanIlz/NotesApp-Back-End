@@ -1,7 +1,7 @@
 module.exports = (req, res, next) => {
         if(req.isAuthenticated()) {
-            next()
+            next();
         } else {
-            res.redirect(`${process.env.FRONTEND_HOST}`);
+            res.status(401).send({message: 'Faltan credenciales'});
         }
     }
