@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 module.exports.notesSchema = new mongoose.Schema(
   { 
-    writer: Number,
+    writer: String,
     title: {
       type: String,
       required: true,

@@ -1,11 +1,22 @@
 require('dotenv').config()
 const express = require('express');
+const session = require("express-session");
 const cookieParser = require('cookie-parser');
 const app = express();
 app.use(express.json({limit: '20mb'}));
 app.use(express.urlencoded({ extended: false, limit: '20mb' }));
 app.use(cookieParser(process.env.SESSION_SECRET));
-require('./app/auth/passport')(app);
+
+/* SESSION SETUP*/
+
+app.use(session({ 
+  secret: process.env.SESSION_SECRET,
+  name: 'sessionId',
+  resave: false,
+  saveUninitialized: false,
+}));
+
+/* MONGOOSE SETUP */
 
 const db = require('./app/models/mongoose.js');
 db.mongoose
@@ -21,11 +32,24 @@ db.mongoose
     console.log('Cannot connect to the database!', err);
     process.exit();
   });
+  
+/* PASSPORT SETUP */
 
-//llamado a las rutas
-const auth = require('./app/routes/auth.routes');
+const passport = require('passport');
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+/* PASSPORT LOCAL AUTHENTICATION */
+
+passport.use(db.users.createStrategy());
+
+passport.serializeUser(db.users.serializeUser());
+passport.deserializeUser(db.users.deserializeUser());
+
+/* ROUTES */
+
 const user = require('./app/routes/user.routes');
-app.use('/auth', auth);
 app.use('/user', user);
 
 
