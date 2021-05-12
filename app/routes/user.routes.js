@@ -1,8 +1,11 @@
 const user = require('../controllers/user.controller');
 const isLoggedIn = require('../auth/session.auth');
-const cors = require('cors');
 const express = require('express');
 const router = express.Router();
+
+/* CORS SETUP */
+
+const cors = require('cors');
 const corsOptions = {
     origin: process.env.FRONTEND_HOST,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -12,7 +15,39 @@ const corsOptions = {
 router.use(cors(corsOptions));
 router.options('*', cors(corsOptions));
 
-router.post('/register', user.register);
+/* MULTER SETUP */
+
+const multer = require('multer');
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/profileImgs');
+    },
+    filename: (req, file, cb) => {
+        cb(null, req.body.username + file.mimetype.replace('image/', '.'));
+    }
+});
+const fileFilter = (req, file, cb) => {
+    if (file.mimetype === 'image/jpg' ||
+        file.mimetype === 'image/jpeg' ||
+        file.mimetype === 'image/gif' ||
+        file.mimetype === 'image/png'
+    ) {
+        cb(null, true);
+    }else{
+        cb(null, false);
+    }
+};
+const uploadProfile = multer({
+    storage: storage,
+    limits: {
+        fileSize: 1024 * 1024 * 5
+    },
+    fileFilter: fileFilter
+});
+
+/* ROUTES AND MIDDLEWARE */
+
+router.post('/register', uploadProfile.single('userImg'), user.register);
 router.post('/login', user.login);
 router.get('/profile', isLoggedIn, user.getUserInfo);
 router.get('/all-notes', isLoggedIn, user.allUserNotes);

@@ -8,10 +8,7 @@ const Note = db.notes.noteModel;
  
 //REGISTRO
 module.exports.register = (req, res) => {
-    //Si el usuario no proporciona una foto, el campo no se guarda en el esquema
-    !req.body.photo === undefined ? 
-    newUser = new User({email: req.body.email, username : req.body.username, photo: req.body.photo})
-    : newUser = new User({email: req.body.email, username : req.body.username});
+    newUser = new User({email: req.body.email, username : req.body.username, profileImg: req.file.path})
     User.register(newUser, req.body.password, function(err, user) {
     if (err) {
         res.json({success:false, message:'Ocurrio un error al intentar registrar al usuario', err});
@@ -60,7 +57,7 @@ module.exports.getUserInfo = (req, res) => {
                     let userObj = {
                         username: data.username,
                         email: data.email,
-                        photo: data.photo,
+                        profileImg: data.profileImg,
                         notes: userNotes
                     }
                     res.json({success: true, data: userObj});

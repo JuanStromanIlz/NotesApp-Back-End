@@ -7,6 +7,10 @@ app.use(express.json({limit: '20mb'}));
 app.use(express.urlencoded({ extended: false, limit: '20mb' }));
 app.use(cookieParser(process.env.SESSION_SECRET));
 
+/* STATIC FOLDERS */
+
+app.use('/uploads', express.static('uploads'));
+
 /* SESSION SETUP*/
 
 app.use(session({ 
