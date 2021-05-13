@@ -3,6 +3,7 @@ const defaultNotes = require('../default.notes');
 const passport = require('passport');
 const User = db.users;
 const Note = db.notes.noteModel;
+const fs = require('fs');
 
 /* CONTROLADORES PARA LAS RUTAS DE USUARIOS */
  
@@ -144,7 +145,13 @@ module.exports.deleteUser = (req, res) => {
         if (!err) {
             User.deleteOne({_id: userId}, err => {
                 if (!err) {
-                    res.json({success: true, message: 'Usuario eliminado con exito'});
+                    fs.unlink(req.user.profileImg, err => {
+                        if (!err) {
+                            res.json({success: true, message: 'Usuario eliminado con exito'});
+                        }else{
+                            res.json({success: false, message: 'Ocurrio un error al intentar eliminar el usuario'});
+                        }
+                    });
                 }else{
                     res.json({success: false, message:'Ocurrio un error al intentar eliminar el usuario', err});
                 }
