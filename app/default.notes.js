@@ -11,13 +11,14 @@ const welcomeTextAPI = {
     linkedIn: links.linkedInLink
   },
   projectName: '¡No lo pierdas!',
+  POSTMAN: 'use x-www-form-urlencoded',
   routes: {
     user: {
       register: {
         info: 'Register a user to the API.',
         method: 'POST',
         path: 'user/register',
-        fields: ['username', 'email', 'porfileImg']
+        fields: ['username', 'email', 'porfileImg', 'password', 'passwordConfirmation']
       },
       login: {
         info: 'log in into the API',
