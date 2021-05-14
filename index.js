@@ -1,15 +1,11 @@
-require('dotenv').config()
-const express = require('express');
-const session = require("express-session");
-const cookieParser = require('cookie-parser');
+import 'dotenv/config.js';
+import express from 'express';
+import session from 'express-session';
+import cookieParser from 'cookie-parser';
 const app = express();
 app.use(express.json({limit: '20mb'}));
 app.use(express.urlencoded({ extended: false, limit: '20mb' }));
 app.use(cookieParser(process.env.SESSION_SECRET));
-
-/* STATIC FOLDERS */
-
-app.use('/uploads', express.static('uploads'));
 
 /* SESSION SETUP*/
 
@@ -22,7 +18,8 @@ app.use(session({
 
 /* MONGOOSE SETUP */
 
-const db = require('./app/models/mongoose.js');
+import { db } from './app/models/mongoose.js';
+
 db.mongoose
   .connect(db.url, {
     useNewUrlParser: true,
@@ -39,22 +36,24 @@ db.mongoose
   
 /* PASSPORT SETUP */
 
-const passport = require('passport');
-
+import passport from 'passport';
 app.use(passport.initialize());
 app.use(passport.session());
 
 /* PASSPORT LOCAL AUTHENTICATION */
 
 passport.use(db.users.createStrategy());
-
 passport.serializeUser(db.users.serializeUser());
 passport.deserializeUser(db.users.deserializeUser());
 
 /* ROUTES */
 
-const user = require('./app/routes/user.routes');
-app.use('/user', user);
+import { welcomeTextAPI } from './app/default.notes.js';
+import { router as userRoutes } from './app/routes/user.routes.js';
+app.use('/user', userRoutes);
+app.get('/', (req, res) => {
+  res.json(welcomeTextAPI);
+});
 
 
 const PORT = process.env.PORT || 8080;

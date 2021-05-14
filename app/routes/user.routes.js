@@ -1,61 +1,44 @@
-const user = require('../controllers/user.controller');
-const isLoggedIn = require('../auth/session.auth');
-const express = require('express');
+import express from 'express';
+import { isLoggedIn } from '../middleware/session.auth.js';
 const router = express.Router();
 
 /* CORS SETUP */
 
-const cors = require('cors');
+import cors from 'cors';
+
 const corsOptions = {
-    origin: process.env.FRONTEND_HOST,
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    origin: [process.env.FRONTEND_HOST, 'http://localhost:3000/'],
+    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
     credentials: true,
     optionsSuccessStatus: 200
 };
 router.use(cors(corsOptions));
 router.options('*', cors(corsOptions));
 
-/* MULTER SETUP */
+/* UPLOAD IMAGES SETUP */
 
-const multer = require('multer');
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/profileImgs');
-    },
-    filename: (req, file, cb) => {
-        cb(null, req.body.username + file.mimetype.replace('image/', '.'));
-    }
-});
-const fileFilter = (req, file, cb) => {
-    if (file.mimetype === 'image/jpg' ||
-        file.mimetype === 'image/jpeg' ||
-        file.mimetype === 'image/gif' ||
-        file.mimetype === 'image/png'
-    ) {
-        cb(null, true);
-    }else{
-        cb(null, false);
-    }
-};
-const uploadProfile = multer({
-    storage: storage,
-    limits: {
-        fileSize: 1024 * 1024 * 5
-    },
-    fileFilter: fileFilter
-});
+import { cloudinaryConfig } from '../config/cloudinary.config.js';
+import { multerUploads, formatToUpload } from '../middleware/multer.middleware.js';
+router.use('*', cloudinaryConfig);
 
 /* ROUTES AND MIDDLEWARE */
+import { validate, register, login, newNote } from '../middleware/express.validator.js';
+import { UserController } from '../controllers/user.controller.js';
+const user = new UserController();
 
-router.post('/register', uploadProfile.single('userImg'), user.register);
-router.post('/login', user.login);
+//USER
+router.post('/register', multerUploads.single('profileImg'), validate(register), formatToUpload, user.register, user.login);
+router.post('/login', validate(login), user.login);
 router.get('/profile', isLoggedIn, user.getUserInfo);
-router.get('/all-notes', isLoggedIn, user.allUserNotes);
-router.get('/all-categories', isLoggedIn, user.allUserCategories);
-router.post('/create-note', isLoggedIn, user.createNote);
-router.put('/update-note', isLoggedIn, user.updateNote);
-router.delete('/delete-note/:note_id', isLoggedIn, user.deleteNote);
-router.delete('/delete-user', isLoggedIn, user.deleteUser);
-router.get('/log-out', isLoggedIn, user.logOut);
+router.delete('/profile', isLoggedIn, user.deleteUser);
+router.get('/logout', isLoggedIn, user.logOut);
+//ALL FROM USER
+router.get('/allNotes', isLoggedIn, user.allUserNotes);
+router.get('/allCategories', isLoggedIn, user.allUserCategories);
+//NOTE ROUTES
+router.post('/note', isLoggedIn, validate(newNote), user.newNote);
+router.get('/note/:note_id', isLoggedIn, user.getById);
+router.patch('/note/:note_id', isLoggedIn, user.updateNote);
+router.delete('/note/:note_id', isLoggedIn, user.deleteNote);
 
-module.exports = router;
+export { router };

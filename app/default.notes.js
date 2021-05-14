@@ -1,14 +1,80 @@
 const links = {
-  contactLink: 'https://github.com/JuanStromanIlz',
-  checkoutLink: 'https://youtu.be/g5nzLQ63c9E',
-  repoBack: 'https://github.com/JuanStromanIlz/NotesApp-Back-End',
-  repoFront: 'https://github.com/JuanStromanIlz/NotesApp-Front-End'
+  gitHubLink: 'https://github.com/JuanStromanIlz',
+  linkedInLink: 'https://www.linkedin.com/in/jstromanilz',
+  checkoutLink: 'https://youtu.be/g5nzLQ63c9E'
 };
 
-module.exports.notes = [
+const welcomeTextAPI = {
+  author: {
+    name: 'Juan Stroman Ilz',
+    gitHub: links.gitHubLink,
+    linkedIn: links.linkedInLink
+  },
+  projectName: '¡No lo pierdas!',
+  routes: {
+    user: {
+      register: {
+        info: 'Register a user to the API.',
+        method: 'POST',
+        path: 'user/register',
+        fields: ['username', 'email', 'porfileImg']
+      },
+      login: {
+        info: 'log in into the API',
+        method: 'POST',
+        path: 'user/login',
+        fields: ['username', 'password']
+      },
+      logout: {
+        info: 'Log out from the API.',
+        method: 'GET',
+        path: 'user/logout'
+      },
+      profile: {
+        info: 'Get the profile info from the user currenly logged.',
+        method: 'GET',
+        path: 'user/profile'
+      },
+      deleteUser: {
+        info: 'Delete all user info.',
+        method: 'DELETE',
+        path: 'user/profile'
+      },
+      allNotes: {
+        info: 'Get all notes from the user currenly logged.',
+        method: 'GET',
+        path: 'user/allNotes'
+      },
+      allCategories: {
+        info: 'Get all categories from the user currenly logged.',
+        method: 'GET',
+        path: 'user/allCategories'
+      },
+      createNote: {
+        info: 'Create a new note by the user.',
+        method: 'POST',
+        path: 'user/note',
+        fields: ['title', 'sub', 'content', 'category']
+      },
+      updateNote: {
+        info: 'Save new fields of a note sending a body with all fields suministred by the API from the note itself.',
+        method: 'PATCH',
+        path: 'user/note/${note_id}',
+        fields: ['title', 'sub', 'content', 'category']
+      },
+      deleteNote: {
+        info: 'Delete note by sending _id from note.',
+        method: 'DELETE',
+        path: 'user/note/${note_id}'
+      }
+    }
+  }
+};
+
+const defaultNotes = [
   {
     title: '¡Hola /USER_NAME/, guardemos data!',
-    sub: `Creado por ${links.contactLink}`,
+    sub: `Creado por ${links.gitHubLink}`,
     content: 'Aca vas a poder ver todas tus notas, ademas de filtrarlas por categorias./nNunca más pierdas una idea!',
     category: 'Bienvenid@' 
   },
@@ -17,17 +83,7 @@ module.exports.notes = [
     sub: '¿Como era esa pagina que tanto me gustaba?',
     content: `Porque navegar es buscar en todos lados te dejamos guardar links a tus sitios preferidos. Por ejemplo: ${links.checkoutLink}`,
     category: 'Links' 
-  },
-  {
-    title: 'Front',
-    sub: `Github: ${links.repoFront}`,
-    content: 'Realizado en React.js junto con styled-components./nLos formularios se validan con formik y yup./nComunicación con la API via axios.',
-    category: 'Dev' 
-  },
-  {
-    title: 'Back',
-    sub: `GitHub: ${links.repoBack}`,
-    content: 'Algunas de las tecnologias usadas son: node.js, express.js y passport: facebook-strategy',
-    category: 'Dev' 
   }
 ];
+
+export { welcomeTextAPI, defaultNotes }

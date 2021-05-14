@@ -1,12 +1,14 @@
-const dbConfig = require('../config/db.config.js');
+import mongoose from 'mongoose';
+import { dbConfig } from '../config/db.config.js';
+import { userModel } from './user.model.js';
+import { noteModel } from './note.model.js';
 
-const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 
 const db = {};
 db.mongoose = mongoose;
 db.url = dbConfig.online;
-db.notes = require('./note.model.js');
-db.users = require('./user.model.js');
+db.notes = noteModel;
+db.users = userModel;
 
-module.exports = db;
+export { db };

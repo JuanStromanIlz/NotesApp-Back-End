@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
-module.exports.notesSchema = new mongoose.Schema(
+const notesSchema = new mongoose.Schema(
   { 
     writer: String,
     title: {
@@ -30,4 +30,6 @@ module.exports.notesSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports.noteModel =  mongoose.model('notes', this.notesSchema);
+const noteModel =  mongoose.model('notes', notesSchema);
+
+export { noteModel };
