@@ -6,6 +6,7 @@ const app = express();
 app.use(express.json({limit: '20mb'}));
 app.use(express.urlencoded({ extended: false, limit: '20mb' }));
 app.use(cookieParser(process.env.SESSION_SECRET));
+app.set('trust proxy', 1);
 
 /* SESSION SETUP*/
 
@@ -14,7 +15,11 @@ app.use(session({
   name: 'sessionId',
   resave: false,
   saveUninitialized: false,
-  proxy: true
+  proxy: true,
+  cookie: {
+    secure: false,
+    maxAge: 5184000000 // 60 days
+  }
 }));
 
 /* MONGOOSE SETUP */
