@@ -1,15 +1,15 @@
 import 'dotenv/config.js';
 import express from 'express';
 import session from 'express-session';
-import cookieParser from 'cookie-parser';
+// import cookieParser from 'cookie-parser';
 const app = express();
 app.use(express.json({limit: '20mb'}));
 app.use(express.urlencoded({ extended: false, limit: '20mb' }));
-app.use(cookieParser(process.env.SESSION_SECRET));
-app.set('trust proxy', 1);
+// app.use(cookieParser(process.env.SESSION_SECRET));
+
 
 /* SESSION SETUP*/
-
+app.set('trust proxy', 1);
 app.use(session({ 
   secret: process.env.SESSION_SECRET,
   name: 'sessionId',
@@ -17,8 +17,9 @@ app.use(session({
   saveUninitialized: false,
   proxy: true,
   cookie: {
+    httpOnly: false,
     secure: false,
-    maxAge: 5184000000 // 60 days
+    sameSite: 'none'
   }
 }));
 
