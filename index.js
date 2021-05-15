@@ -14,6 +14,7 @@ app.use(session({
   name: 'sessionId',
   resave: false,
   saveUninitialized: false,
+  proxy: true
 }));
 
 /* MONGOOSE SETUP */
