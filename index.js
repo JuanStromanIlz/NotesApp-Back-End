@@ -1,11 +1,9 @@
 import 'dotenv/config.js';
 import express from 'express';
 import session from 'express-session';
-// import cookieParser from 'cookie-parser';
 const app = express();
 app.use(express.json({limit: '20mb'}));
 app.use(express.urlencoded({ extended: false, limit: '20mb' }));
-// app.use(cookieParser(process.env.SESSION_SECRET));
 
 
 /* SESSION SETUP*/
@@ -19,7 +17,8 @@ app.use(session({
   cookie: {
     httpOnly: false,
     secure: false,
-    sameSite: 'none'
+    sameSite: 'none',
+    domain: process.env.FRONTEND_HOST
   }
 }));
 
