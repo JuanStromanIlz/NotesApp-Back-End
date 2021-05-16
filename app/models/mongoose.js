@@ -7,7 +7,7 @@ mongoose.Promise = global.Promise;
 
 const db = {};
 db.mongoose = mongoose;
-db.url = dbConfig.online;
+db.route = dbConfig;
 db.notes = noteModel;
 db.users = userModel;
 

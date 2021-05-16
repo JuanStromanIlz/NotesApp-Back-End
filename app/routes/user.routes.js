@@ -1,44 +1,26 @@
 import express from 'express';
-import { isLoggedIn } from '../middleware/session.auth.js';
 const router = express.Router();
 
-/* CORS SETUP */
-
-import cors from 'cors';
-
-const corsOptions = {
-    origin: [process.env.FRONTEND_HOST, 'http://localhost:3000/'],
-    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
-    credentials: true,
-    optionsSuccessStatus: 200
-};
-router.use(cors(corsOptions));
-router.options('*', cors(corsOptions));
-
-/* UPLOAD IMAGES SETUP */
-
-import { cloudinaryConfig } from '../config/cloudinary.config.js';
-import { multerUploads, formatToUpload } from '../middleware/multer.middleware.js';
-router.use('*', cloudinaryConfig);
-
 /* ROUTES AND MIDDLEWARE */
-import { validate, register, login, newNote } from '../middleware/express.validator.js';
+
+//TOKEN VALIDATION
+import { passport } from '../middleware/passport.auth.js';
+//FORM FIELDS VALIDATION
+import { validate, newNote } from '../middleware/express.validator.js';
+//USER ROUTER CONTROLLER
 import { UserController } from '../controllers/user.controller.js';
 const user = new UserController();
 
 //USER
-router.post('/register', multerUploads.single('profileImg'), validate(register), formatToUpload, user.register, user.login);
-router.post('/login', validate(login), user.login);
-router.get('/profile', isLoggedIn, user.getUserInfo);
-router.delete('/profile', isLoggedIn, user.deleteUser);
-router.get('/logout', isLoggedIn, user.logOut);
+router.get('/profile', passport.authenticate('jwt',{session: false}), user.getUserInfo);
+router.delete('/profile', passport.authenticate('jwt',{session: false}), user.deleteUser);
 //ALL FROM USER
-router.get('/allNotes', isLoggedIn, user.allUserNotes);
-router.get('/allCategories', isLoggedIn, user.allUserCategories);
+router.get('/allNotes', passport.authenticate('jwt',{session: false}), user.allUserNotes);
+router.get('/allCategories', passport.authenticate('jwt',{session: false}), user.allUserCategories);
 //NOTE ROUTES
-router.post('/note', isLoggedIn, validate(newNote), user.newNote);
-router.get('/note/:note_id', isLoggedIn, user.getById);
-router.patch('/note/:note_id', isLoggedIn, user.updateNote);
-router.delete('/note/:note_id', isLoggedIn, user.deleteNote);
+router.post('/note', passport.authenticate('jwt',{session: false}), validate(newNote), user.newNote);
+router.get('/note/:note_id', passport.authenticate('jwt',{session: false}), user.getById);
+router.patch('/note/:note_id', passport.authenticate('jwt',{session: false}), user.updateNote);
+router.delete('/note/:note_id', passport.authenticate('jwt',{session: false}), user.deleteNote);
 
 export { router };

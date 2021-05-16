@@ -1,33 +1,15 @@
 import 'dotenv/config.js';
 import express from 'express';
-import session from 'express-session';
 const app = express();
 app.use(express.json({limit: '20mb'}));
 app.use(express.urlencoded({ extended: false, limit: '20mb' }));
-
-
-/* SESSION SETUP*/
-app.set('trust proxy', 1);
-app.use(session({ 
-  secret: process.env.SESSION_SECRET,
-  name: 'sessionId',
-  resave: false,
-  saveUninitialized: false,
-  proxy: true,
-  cookie: {
-    httpOnly: false,
-    secure: false,
-    sameSite: 'none',
-    domain: process.env.FRONTEND_HOST
-  }
-}));
 
 /* MONGOOSE SETUP */
 
 import { db } from './app/models/mongoose.js';
 
 db.mongoose
-  .connect(db.url, {
+  .connect(db.route.online, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true
@@ -42,27 +24,40 @@ db.mongoose
   
 /* PASSPORT SETUP */
 
-import passport from 'passport';
+import { passport } from './app/middleware/passport.auth.js';
 app.use(passport.initialize());
-app.use(passport.session());
 
-/* PASSPORT LOCAL AUTHENTICATION */
+/* CORS SETUP */
 
-passport.use(db.users.createStrategy());
-passport.serializeUser(db.users.serializeUser());
-passport.deserializeUser(db.users.deserializeUser());
+import cors from 'cors';
+
+const corsOptions = {
+  origin: [process.env.FRONTEND_HOST, 'http://localhost:3000/'],
+  methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 /* ROUTES */
 
-import { welcomeTextAPI } from './app/default.notes.js';
+import { welcomeTextAPI } from './app/config/default.notes.js';
 import { router as userRoutes } from './app/routes/user.routes.js';
-app.use('/user', userRoutes);
+import { router as authRoutes } from './app/routes/auth.routes.js';
+import { errorHandler } from './app/middleware/error.handler.js';
+
+//WELCOME
 app.get('/', (req, res) => {
   res.json(welcomeTextAPI);
 });
-
+//REGISTER, LOGIN
+app.use('/', authRoutes);
+//USER
+app.use('/user', userRoutes);
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, ()=>{
-    console.log(`Server runnig on port ${PORT}`);
-})
+  console.log(`Server runnig on port ${PORT}`);
+});
