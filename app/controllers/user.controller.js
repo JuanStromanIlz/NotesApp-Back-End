@@ -44,6 +44,7 @@ class UserController {
   }
   //GET ALL NOTES FROM USER
   async allUserNotes(req, res, next) {
+    console.log(req.user)
     let userId = req.user._id;
     try {
       const userNotes = await Note.find({writer: userId}, null, {sort: { updatedAt : -1 }});

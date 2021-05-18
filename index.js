@@ -26,16 +26,18 @@ db.mongoose
 
 import { passport } from './app/middleware/passport.auth.js';
 app.use(passport.initialize());
-
 /* CORS SETUP */
 
 import cors from 'cors';
 
 const corsOptions = {
-  origin: [process.env.FRONTEND_HOST, 'http://localhost:3000/'],
+  origin: [process.env.FRONTEND_HOST],
   methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+  allowedHeaders:  ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Authorization'],
+  optionsSuccessStatus: 200,
   credentials: true,
-  optionsSuccessStatus: 200
+  maxAge: 3600
 };
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));

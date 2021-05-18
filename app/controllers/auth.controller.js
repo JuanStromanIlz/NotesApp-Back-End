@@ -37,17 +37,19 @@ class AuthController {
             content: note.content
           }).save();
         });
+        //Generate user info
+        const userInfo = { 
+          username: user.username,
+          email: user.email,
+          profileImg: user.profileImg
+        };
         // Generate JWT token
         const token = jwt.sign({
-          id: newUser._id
+          id: user._id
         }, process.env.JWT_SECRET);
         //Send user info and token
         res.status(200).json({
-          user: { 
-            username: user.username,
-            email: user.email,
-            profileImg: user.profileImg
-          },
+          user: userInfo,
           token
         });
       }else{
@@ -58,33 +60,38 @@ class AuthController {
   //LOGIN
   async login(req, res, next) {
     const { username, password } = req.body;
-    //Check If User Exists
-    let foundUser = await User.findOne({username});
-    if (!foundUser) {
-      return res.status(403).json({
-        error: 'no username under this name'
-      });
-    }
-    passport.authenticate('local', (err, user, info) => {
-      if (!err) {
-        // Generate JWT token
-        const token = jwt.sign({
-          id: user._id
-        }, process.env.JWT_SECRET);
-        console.log(token);
-        //Send token
-        return res.status(200).json({
-          success: true,
-          token
+    try {
+      //Check If User Exists
+      let foundUser = await User.findOne({username});
+      if (!foundUser) {
+        return res.status(404).json({
+          error: 'Ningun usuario bajo este nombre'
         });
       }
-      if (err) {
-        next(err);
-      }
+      const { user } = await User.authenticate()(username, password);
       if (!user) {
-        return res.json({success:false, message:'Alguno de los datos proporcionados es incorrecto', info});
-      } 
-    })(req, res, next);
+        return res.status(401).json({
+          error: 'Alguno de los datos proporcionados es incorrecto'
+        });
+      }
+      //Generate user info
+      const sendUser = { 
+        username: user.username,
+        email: user.email,
+        profileImg: user.profileImg
+      };
+      // Generate JWT token
+      const token =  jwt.sign({
+        id: user._id
+      }, process.env.JWT_SECRET);
+      //Send user info and token
+      return res.status(200).json({
+        user: sendUser,
+        token
+      });
+    } catch(err) {
+      return next(err);
+    }
   }
 }
 
